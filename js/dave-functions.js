@@ -39,19 +39,43 @@ nameParserHolder = {
     loadFiles: function (instance, fileList){
 
         var files=fileList.split(",");
-        //console.log(files[0]);
+
         jQuery.get(files[0],
         function(data){
           nameParserHolder.parseFiles(instance, data);
         });
      },
-
+     /**
+     * Parse files into standard format. Preserve all data.
+     *
+     * @author {Dave Gipp}
+     * @param {instance} The DOM ID which is invoking the function.
+     * @param {fileList Object} list of files to load
+     */
     parseFiles: function (instance, data){
     	// find instance in array and merge data into object
         jQuery.extend(nameParserHolder.instanceData[instance],{
-        	data: data
+            //store raw data
+        	rawdata: data
         	//parsed data to go here also
     	});
+        // get records
+        tmpData = data.split('\n');
+
+        // file is not well spearated, clean spaces
+        tmpData.forEach(function (element, index, array) {
+            tmpData[index] = element.replace(/\s+/g,' ').trim();
+        })
+        // get individual values
+        tmpData.forEach(function (element, index, array) {
+            tmp = element.split(' ');
+            tmpData[index] = tmp;
+        });
+        // store clean data
+        jQuery.extend(nameParserHolder.instanceData[instance],{
+            cleanData: tmpData
+        });
+
     console.log(nameParserHolder.instanceData[instance]);
 
     }
