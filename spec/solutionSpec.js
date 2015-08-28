@@ -1,21 +1,27 @@
-describe("Parser", function() {
+describe("ParserTest", function() {
   var instance;
+  var parserTestDiv;
 
-  beforeEach(function() {
+      beforeEach(function() {
+        // setup generic parser div
+        parserTestDiv = '<div class="nameParser" id="parserTest"></div>';
+        jQuery("#testHolder").append(parserTestDiv);
+        // add data element specific to this test
+        parserTestDiv = jQuery(parserTestDiv).add('data-filelist="male-first.txt,female-first.txt"');
+        jQuery("#parserTestDiv").replace(parserTestDiv);
+        console.log("here");
+        });
+      });
 
-  });
-
-  it("should be able to retrieve self", function() {
-
+  it("should find data-element", function() {
+        expect(function(){
+          return jQuery("#testHolder").data('filelist');
+        }).toBeTruthy();
   });
 
   describe("when fileHasBeenLoaded", function() {
+      
 
-    });
-
-    it("should result in raw data in Function Instance", function() {
-
-    });
   });
 
   // demonstrates use of spies to intercept and test method calls

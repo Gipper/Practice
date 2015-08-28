@@ -53,19 +53,19 @@ nameParserHolder = {
      * @param {fileList Object} list of files to load
      */
     parseFiles: function (instance, data){
-    	// find instance in array and merge data into object
+        // find instance in array and merge data into object
         jQuery.extend(nameParserHolder.instanceData[instance],{
             //store raw data
-        	rawdata: data
-        	//parsed data to go here also
-    	});
+            rawdata: data
+            //parsed data to go here also
+        });
         // get records
         tmpData = data.split('\n');
 
         // file is not well spearated, clean spaces
         tmpData.forEach(function (element, index, array) {
             tmpData[index] = element.replace(/\s+/g,' ').trim();
-        })
+        });
         // get individual values
         tmpData.forEach(function (element, index, array) {
             tmp = element.split(' ');
