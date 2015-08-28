@@ -7,15 +7,20 @@
   <meta name="author" content="Dave G">
 
   <link rel="stylesheet" href="css/dave-styles.css">
-
+  <link rel="stylesheet" href="lib/css/jasmine.css">
   <!--[if lt IE 9]>
   //TODO: DG: maybe find a shim of some sort if anyone is still using IE8 or compat mode
   <![endif]-->
+  <script src="lib/js/jquery-1.11.3.min.js"></script>
+  <script src="lib/js/jasmine.js"></script>
+  <script src="lib/js/jasmine-html.js"></script>
+  <script src="lib/js/boot.js"></script>
+  <script src="js/dave-functions.js"></script>
+  <script src="spec/solutionSpec.js"></script>
 </head>
 
 <body>
-	<script src="lib/js/jquery-1.11.3.min.js"></script>
-	<script src="js/dave-functions.js"></script>
+
 
   <h2>Here be Parser</h2>
     <div class="nameParser" id="Parser1" data-filelist="male-first.txt,female-first.txt">replace me!</div>
@@ -23,5 +28,6 @@
     <div class="nameParser" id="Parser2" data-filelist="male-first.txt,female-first.txt">replace me!</div>
     <!--please remember data attributes are lowercase only, do not camelcase-->
 
+  <h2>Here be Unit Tests</h2>
 </body>
 </html>
