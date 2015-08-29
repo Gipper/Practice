@@ -85,6 +85,6 @@ nameParserHolder = {
 jQuery(document).ready(function(){
   // instantiate every parser instance on page
   jQuery(".nameParser").each(function(){
-    nameParserHolder.init_state(this.id);
+    //nameParserHolder.init_state(this.id);
   });
 });

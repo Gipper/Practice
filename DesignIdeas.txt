@@ -1,0 +1,9 @@
+- use default jQuery ajax methods to avoid version differences. 
+- always chain from ajax success return to avoid race conditions
+- don't pollute DOM with bare functions or variables
+- store all functions in re-useable object instance
+- don't store processed data on DOM elements
+- do use data elements to pass in parameters per instance
+- never assume $ equals jQuery
+- use jsDocs
+- run jsLint
