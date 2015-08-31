@@ -17,16 +17,16 @@ nameParserHolder = {
     var fileList = jQuery("#" + instance).data('filelist');
     //NOTE: data attributes can only be retrieved as lowercase in recent jQuery.
     if (fileList){
-
-        nameParserHolder.loadFiles(instance, fileList);
+        console.log("On instance name:" + instance + ", I found these files to load:" + fileList);
+        nameParserHolder.loadFilesWithPromise(instance, fileList);
        
      } else {
       // maybe throw up a place to drag files to be parsed if there's nothing in the data element
      }
-     // create named element per instance containing data object
+     // create named element per instance containing a palce to store our raw and clean data.
      nameParserHolder.instanceData[instance]={
      files:fileList
-     };//store instance data in name parser Object, do not hang off DOM element
+     };
     },
     /**
      * Load list of files and invoke parsing. Chaining from default ajax success method
@@ -36,30 +36,40 @@ nameParserHolder = {
      * @param {instance} The DOM ID which is invoking the function.
      * @param {fileList Object} list of files to load
      */
-    loadFiles: function (instance, fileList){
+    loadFilesWithPromise: function (instance, fileList){
 
         var files=fileList.split(",");
-        jQuery.get(files[0],
-        function(data){
-          nameParserHolder.parseFiles(instance, data, files[0]);
+        var promiseAllFilesAreLoaded = jQuery.Deferred();
+        // create area to store raw data
+        var dataRetrievedPerFilename = {
+            rawdata:{}
+            };
+
+        var promiseRequests = jQuery.map(files, function(currentRequest){
+            console.log("dispatching get for file:" + currentRequest);
+            return jQuery.get(currentRequest,function (data){
+                //store raw data under current filename
+                dataRetrievedPerFilename.rawdata[currentRequest] = data;
+                jQuery.extend(nameParserHolder.instanceData[instance], dataRetrievedPerFilename);
+            });
         });
+
+        jQuery.when.apply(jQuery,promiseRequests).then(function (data){
+            console.log('All promises fulfilled');
+            //nameParserHolder.parseFiles(instance, files);
+        });
+
      },
      /**
      * Parse files into standard format. Preserve all data.
      *
      * @author {Dave Gipp}
-     * @param {instance} The DOM ID which is invoking the function.
-     * @param {fileList Object} list of files to load
      */
-    parseFiles: function (instance, data, filename){
-        // find instance in array and merge data into object
-        jQuery.extend(nameParserHolder.instanceData[instance],{
-            //store raw data
-            rawdata: data
-            //parsed data to go here also
-        });
-        // get records
-        tmpData = data.split('\n');
+    parseFiles: function (){
+
+
+        // get individual records
+        tmpData = rawdata.split('\n');
 
         // file is not well spearated, clean spaces
         tmpData.forEach(function (element, index, array) {
@@ -70,15 +80,12 @@ nameParserHolder = {
             tmp = element.split(' ');
             tmpData[index] = tmp;
         });
-        // store clean data under object named according to file name that was parsed
-        dataTargetLocation = nameParserHolder.instanceData[instance];
-        // each file has data stored under file name
-        dataInjectedPerFilename = {};
-        dataInjectedPerFilename[filename] = tmpData;
+        
+        dataRetrievedPerFilename.cleandata[filename] = tmpData;
 
         jQuery.extend(dataTargetLocation,dataInjectedPerFilename);
 
-    console.log(nameParserHolder.instanceData[instance]);
+    console.log(nameParserHolder);
 
     }
 
@@ -87,6 +94,6 @@ nameParserHolder = {
 jQuery(document).ready(function(){
   // instantiate every parser instance on page
   jQuery(".nameParser").each(function(){
-    //nameParserHolder.init_state(this.id);
+    nameParserHolder.init_state(this.id);
   });
 });
