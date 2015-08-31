@@ -1,6 +1,5 @@
 nameParserHolder = {
   //global instance vars
-
   instanceData: [],
 
 /**
@@ -17,16 +16,17 @@ nameParserHolder = {
     var fileList = jQuery("#" + instance).data('filelist');
     //NOTE: data attributes can only be retrieved as lowercase in recent jQuery.
     if (fileList){
-        console.log("On instance name:" + instance + ", I found these files to load:" + fileList);
-        //nameParserHolder.loadFilesWithPromise(instance, fileList);
+        jQuery("#"+instance).append("On instance name:" + instance + ", I found these files to load:" + fileList + "<br>");
+    
        
      } else {
       // maybe throw up a place to drag files to be parsed if there's nothing in the data element
      }
-     // create named element per instance containing a palce to store our raw and clean data.
+     // create named element per instance containing a place to store our raw and clean data.
      nameParserHolder.instanceData[instance]={
      files:fileList
      };
+    nameParserHolder.loadFilesWithPromise(instance);
     },
     /**
      * Load list of files and invoke parsing. Chaining from default ajax success method
@@ -46,7 +46,7 @@ nameParserHolder = {
             };
 
         var promiseRequests = jQuery.map(files, function(currentRequest){
-            console.log("dispatching get for file:" + currentRequest);
+            jQuery("#"+instance).append("dispatching get for file:" + currentRequest + "<br>");
             return jQuery.get(currentRequest,function (data){
                 //store raw data under current filename
                 dataRetrievedPerFilename.rawdata[currentRequest] = data;
@@ -55,7 +55,7 @@ nameParserHolder = {
         });
 
         jQuery.when.apply(jQuery,promiseRequests).then(function (data){
-            console.log('All promises fulfilled for instance: ' + instance + ". Raw data is ready to parse");
+            jQuery("#"+instance).append('All promises fulfilled for instance: ' + instance + ". Raw data is ready to parse" + "<br>");
             nameParserHolder.parseData(instance);
         });
 
@@ -64,6 +64,7 @@ nameParserHolder = {
      * Parse collected data into standard format. Preserve all data.
      *
      * @author {Dave Gipp}
+     * @param {instance} The DOM ID which is invoking the function.
      */
     parseData: function (instance){
         var myCollections = nameParserHolder.instanceData[instance];
@@ -73,7 +74,7 @@ nameParserHolder = {
 
         jQuery.each(myCollections.rawdata, function(filename, rawdata) {
             // get individual records
-            tmpData = rawdata.split('\n');
+            var tmpData = rawdata.split('\n');
 
             // file is not well spearated, clean spaces
             tmpData.forEach(function (element, index, array) {
@@ -81,14 +82,41 @@ nameParserHolder = {
             });
             // get individual values
             tmpData.forEach(function (element, index, array) {
-                tmp = element.split(' ');
+                var tmp = element.split(' ');
                 tmpData[index] = tmp;
             });
             dataRetrievedPerFilename.cleandata[filename] = tmpData;
             jQuery.extend(nameParserHolder.instanceData[instance], dataRetrievedPerFilename);
         });
 
-     console.log("Data parsing completed for instance:" + instance);
+     jQuery("#"+instance).append("Data parsing completed for instance:" + instance + "<br>");
+     nameParserHolder.collateData(instance);
+    },
+    collateData: function (instance){
+        var letterObject = {
+            letters:{}
+        };
+        var myCollections = nameParserHolder.instanceData[instance];
+        jQuery.each(myCollections.cleandata, function(filename, cleandata) {
+
+            cleandata.forEach(function (element, index, array) {
+                var name = cleandata[index][0];
+
+                name.split("").forEach(function (element, index, array) {
+
+                    if (!letterObject.letters[element]) {
+                        letterObject.letters[element] = 1;
+
+                    } else {
+                        letterObject.letters[element] = letterObject.letters[element] + 1;
+                    }
+                });
+            });
+        });
+        jQuery.extend(nameParserHolder.instanceData[instance], letterObject);
+        jQuery("#"+instance).append(JSON.stringify(letterObject));
+    },
+    presentData: function (name) {
 
     }
 };
