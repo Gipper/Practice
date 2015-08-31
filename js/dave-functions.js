@@ -18,7 +18,7 @@ nameParserHolder = {
     //NOTE: data attributes can only be retrieved as lowercase in recent jQuery.
     if (fileList){
         console.log("On instance name:" + instance + ", I found these files to load:" + fileList);
-        nameParserHolder.loadFilesWithPromise(instance, fileList);
+        //nameParserHolder.loadFilesWithPromise(instance, fileList);
        
      } else {
       // maybe throw up a place to drag files to be parsed if there's nothing in the data element
@@ -34,13 +34,13 @@ nameParserHolder = {
      *
      * @author {Dave Gipp}
      * @param {instance} The DOM ID which is invoking the function.
-     * @param {fileList Object} list of files to load
      */
-    loadFilesWithPromise: function (instance, fileList){
+    loadFilesWithPromise: function (instance){
 
-        var files=fileList.split(",");
+        
+        var files=nameParserHolder.instanceData[instance].files.split(",");
         var promiseAllFilesAreLoaded = jQuery.Deferred();
-        // create area to store raw data
+        // create area to store raw data, to be used once per retreived file.
         var dataRetrievedPerFilename = {
             rawdata:{}
             };
@@ -55,40 +55,42 @@ nameParserHolder = {
         });
 
         jQuery.when.apply(jQuery,promiseRequests).then(function (data){
-            console.log('All promises fulfilled');
-            //nameParserHolder.parseFiles(instance, files);
+            console.log('All promises fulfilled for instance: ' + instance + ". Raw data is ready to parse");
+            nameParserHolder.parseData(instance);
         });
 
      },
      /**
-     * Parse files into standard format. Preserve all data.
+     * Parse collected data into standard format. Preserve all data.
      *
      * @author {Dave Gipp}
      */
-    parseFiles: function (){
+    parseData: function (instance){
+        var myCollections = nameParserHolder.instanceData[instance];
+        var dataRetrievedPerFilename = {
+            cleandata:{}
+            };
 
+        jQuery.each(myCollections.rawdata, function(filename, rawdata) {
+            // get individual records
+            tmpData = rawdata.split('\n');
 
-        // get individual records
-        tmpData = rawdata.split('\n');
-
-        // file is not well spearated, clean spaces
-        tmpData.forEach(function (element, index, array) {
-            tmpData[index] = element.replace(/\s+/g,' ').trim();
+            // file is not well spearated, clean spaces
+            tmpData.forEach(function (element, index, array) {
+                tmpData[index] = element.replace(/\s+/g,' ').trim();
+            });
+            // get individual values
+            tmpData.forEach(function (element, index, array) {
+                tmp = element.split(' ');
+                tmpData[index] = tmp;
+            });
+            dataRetrievedPerFilename.cleandata[filename] = tmpData;
+            jQuery.extend(nameParserHolder.instanceData[instance], dataRetrievedPerFilename);
         });
-        // get individual values
-        tmpData.forEach(function (element, index, array) {
-            tmp = element.split(' ');
-            tmpData[index] = tmp;
-        });
-        
-        dataRetrievedPerFilename.cleandata[filename] = tmpData;
 
-        jQuery.extend(dataTargetLocation,dataInjectedPerFilename);
-
-    console.log(nameParserHolder);
+     console.log("Data parsing completed for instance:" + instance);
 
     }
-
 };
 
 jQuery(document).ready(function(){
