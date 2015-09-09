@@ -23,20 +23,19 @@ nameParserHolder = {
             files:fileList
         };
 
-        nameParserHolder.loadFilesWithPromise(instance);
+        //nameParserHolder.loadFilesWithPromise(instance);
     },
     /**
-     * Load list of files via ajax. Set promises and wait for success. Invoke parsing
-     * 
+     * Load list of files via ajax. Collect ajax results as promises
+     * resolve surrounding promise and return to continue execution.
      *
      * @author {Dave Gipp}
      * @param {instance} The DOM ID which is invoking the function.
      */
     loadFilesWithPromise: function (instance){
-
         
         var files=nameParserHolder.instanceData[instance].files.split(",");
-        var promiseAllFilesAreLoaded = jQuery.Deferred();
+        var promiseAllFilesAreLoaded = new jQuery.Deferred();
 
         var dataRetrievedPerFilename = {
                 rawdata:{}
@@ -54,7 +53,10 @@ nameParserHolder = {
         jQuery.when.apply(jQuery,promiseRequests).then(function (data){
             jQuery("#"+instance).append('All promises fulfilled for instance: ' + instance + ". Raw data is ready to parse" + "<br>");
             nameParserHolder.parseData(instance);
+            promiseAllFilesAreLoaded.resolve();
         });
+
+        return promiseAllFilesAreLoaded.promise();
 
      },
      /**
@@ -64,6 +66,7 @@ nameParserHolder = {
      * @param {instance} The DOM ID which is invoking the function.
      */
     parseData: function (instance){
+
         var myCollections = nameParserHolder.instanceData[instance];
         var dataRetrievedPerFilename = {
                 cleandata:{}
@@ -128,6 +131,8 @@ nameParserHolder = {
 jQuery(document).ready(function(){
     // instantiate every parser div on page, which will invoke parsing for the files listed in data element
     jQuery(".nameParser").each(function(){
-       nameParserHolder.init_state(this.id);
+        var instance = this.id;
+        nameParserHolder.init_state(instance);
+        nameParserHolder.loadFilesWithPromise(instance);
     });
 });
