@@ -43,12 +43,12 @@ describe("ParserTest", function() {
       });
 
 
-      it("should load two files asynchron when there are two", function() {
-        console.log();
+      it("should load two files asynchronously when there are two", function() {
+        console.log(); //TODO: remove console.log
       });
 
   });
-  
+
   describe("when loading 1 data element it should process one correctly", function() {
 
       beforeEach(function() {
@@ -67,4 +67,3 @@ describe("ParserTest", function() {
       });
   });
 });
-
